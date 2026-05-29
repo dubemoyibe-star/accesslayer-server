@@ -396,3 +396,4 @@ Error codes are part of the public API contract and should be treated as stable:
 - [API Error Handling](./architecture/route-error-mapping.md) - Error handling architecture
 - [Error Constants](../src/constants/error.constants.ts) - Error code definitions
 - [API Response Utilities](../src/utils/api-response.utils.ts) - Helper functions for sending errors
+- [Rate Limiting](./rate-limiting.md) - Rate limiting configuration and thresholds

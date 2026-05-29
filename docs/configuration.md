@@ -496,4 +496,5 @@ const value = envConfig.NEW_CONFIG_VALUE;
 
 - [API Versioning](./api-versioning.md) - API version configuration
 - [Query Debug](./query-normalization-debug.md) - Debug logging configuration
+- [Rate Limiting](./rate-limiting.md) - Rate limiting configuration and thresholds
 - [README](../README.md) - Local setup instructions
