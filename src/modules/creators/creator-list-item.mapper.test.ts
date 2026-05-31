@@ -14,7 +14,13 @@ beforeEach(() => {
 
 describe('mapCreatorListItem()', () => {
    it('maps the public creator list item shape', () => {
-      const input = { id: '1', displayName: 'John', avatarUrl: null } as any;
+      const input = {
+         id: '1',
+         displayName: 'John',
+         avatarUrl: null,
+         createdAt: new Date('2024-01-02T03:04:05.678Z'),
+         updatedAt: new Date('2024-01-03T03:04:05.678Z'),
+      } as any;
 
       const result = mapCreatorListItem(input);
 
@@ -23,12 +29,20 @@ describe('mapCreatorListItem()', () => {
          name: 'John',
          avatar: null,
          followers: 0,
+         createdAt: '2024-01-02T03:04:05.678Z',
+         updatedAt: '2024-01-03T03:04:05.678Z',
       });
       expect(warnMock).not.toHaveBeenCalled();
    });
 
    it('warns when a schema-required creator field is unexpectedly null', () => {
-      const input = { id: 'creator-1', displayName: null, avatarUrl: null } as any;
+      const input = {
+         id: 'creator-1',
+         displayName: null,
+         avatarUrl: null,
+         createdAt: new Date('2024-01-02T03:04:05.678Z'),
+         updatedAt: new Date('2024-01-03T03:04:05.678Z'),
+      } as any;
 
       const result = requestContextStorage.run(
          { path: '/api/v1/creators', method: 'GET', requestId: 'req-333' },
@@ -40,6 +54,8 @@ describe('mapCreatorListItem()', () => {
          name: null,
          avatar: null,
          followers: 0,
+         createdAt: '2024-01-02T03:04:05.678Z',
+         updatedAt: '2024-01-03T03:04:05.678Z',
       });
       expect(warnMock).toHaveBeenCalledWith({
          msg: 'Unexpected null creator field in database result',

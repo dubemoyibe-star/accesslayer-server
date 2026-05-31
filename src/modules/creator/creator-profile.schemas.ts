@@ -43,6 +43,8 @@ export const CreatorProfileReadResponseSchema = z.object({
    displayName: z.string().nullable(),
    bio: z.string().nullable(),
    avatarUrl: z.string().url().nullable(),
+   createdAt: z.string().datetime().nullable(),
+   updatedAt: z.string().datetime().nullable(),
    perks: z.array(CreatorPerkSchema).optional(),
    links: z.array(z.object({ label: z.string(), url: z.string().url() })),
    metadata: z.object({

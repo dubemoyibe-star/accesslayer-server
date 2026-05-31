@@ -1,5 +1,6 @@
 import { CreatorProfile } from '../../types/profile.types';
 import { requestContextStorage } from '../../utils/als.utils';
+import { formatIsoTimestamp } from '../../utils/iso-timestamp.utils';
 import { logger } from '../../utils/logger.utils';
 import { safeRead } from '../../utils/safe-nested-read.utils';
 
@@ -12,6 +13,8 @@ export type CreatorListItem = {
    name: string | null;
    avatar: string | null;
    followers: number;
+   createdAt: string;
+   updatedAt: string;
 };
 
 function warnIfUnexpectedNullCreatorField(
@@ -46,5 +49,7 @@ export const mapCreatorListItem = (
       name: safeRead(creator, 'displayName', null),
       avatar: safeRead(creator, 'avatarUrl', null),
       followers: 0,
+      createdAt: formatIsoTimestamp(creator.createdAt),
+      updatedAt: formatIsoTimestamp(creator.updatedAt),
    };
 };
