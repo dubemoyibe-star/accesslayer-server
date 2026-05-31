@@ -35,7 +35,7 @@ function logIfFieldTypeMismatch(
    creator: CreatorProfile,
    fieldName: keyof typeof CREATOR_LIST_FIELD_EXPECTED_TYPES
 ): void {
-   const value = (creator as Record<string, unknown>)[fieldName];
+   const value = (creator as unknown as Record<string, unknown>)[fieldName];
 
    if (value === null || value === undefined) return;
 
