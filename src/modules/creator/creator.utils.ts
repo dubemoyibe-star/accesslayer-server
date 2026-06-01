@@ -3,14 +3,19 @@ import { Prisma } from '@prisma/client';
 import { resolveSlugCollision } from '../../utils/slug.utils';
 import { prisma } from '../../utils/prisma.utils';
 import {
-   CREATOR_LIST_SORT_FIELDS,
+   CREATOR_LIST_SORT_ORDERS,
    DEFAULT_CREATOR_LIST_ORDER,
    DEFAULT_CREATOR_LIST_SORT,
    type CreatorListSortField,
+   type CreatorListSortOrder,
 } from '../../constants/creator-list-sort.constants';
+import {
+   isRecognizedCreatorListSortField,
+   warnIfUnrecognizedCreatorListSort,
+} from '../creators/creators.sort-field.utils';
 
 export type CreatorSortField = CreatorListSortField;
-export type SortOrder = 'asc' | 'desc';
+export type SortOrder = CreatorListSortOrder;
 
 export interface CreatorSortOptions {
    field: CreatorSortField;
@@ -23,15 +28,19 @@ export interface CreatorSortOptions {
  */
 export function parseCreatorSortOptions(
    sortBy?: string,
-   sortOrder?: string
+   sortOrder?: string,
+   requestId?: string
 ): CreatorSortOptions {
-   const validOrders: SortOrder[] = ['asc', 'desc'];
+   if (sortBy !== undefined && sortBy !== '') {
+      warnIfUnrecognizedCreatorListSort({ sort: sortBy }, requestId);
+   }
 
-   const field = CREATOR_LIST_SORT_FIELDS.includes(sortBy as CreatorSortField)
-      ? (sortBy as CreatorSortField)
-      : DEFAULT_CREATOR_LIST_SORT;
+   const field =
+      sortBy && isRecognizedCreatorListSortField(sortBy)
+         ? sortBy
+         : DEFAULT_CREATOR_LIST_SORT;
 
-   const order = validOrders.includes(sortOrder as SortOrder)
+   const order = CREATOR_LIST_SORT_ORDERS.includes(sortOrder as SortOrder)
       ? (sortOrder as SortOrder)
       : DEFAULT_CREATOR_LIST_ORDER;
 

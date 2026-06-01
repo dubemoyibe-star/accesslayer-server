@@ -7,6 +7,7 @@ Integration test suite for the creator feed endpoint (`GET /api/v1/creators`) th
 ## Purpose
 
 This test suite ensures that:
+
 1. The response envelope structure remains consistent across all filter combinations
 2. Default values are correctly applied when parameters are omitted
 3. Empty results are handled gracefully with proper metadata
@@ -21,16 +22,19 @@ This test suite ensures that:
 ### Minimal Fixtures
 
 The test uses Jest mocks to simulate empty database results, eliminating the need for:
+
 - Database setup/teardown
 - Test data seeding
 - Complex fixture management
 
 **Mock Strategy:**
+
 ```typescript
 jest.spyOn(creatorsUtils, 'fetchCreatorList').mockResolvedValue([[], 0]);
 ```
 
 This ensures:
+
 - **Deterministic results** - Always returns empty array and 0 count
 - **Fast execution** - No database I/O
 - **Isolated testing** - Tests controller/serialization logic only
@@ -134,11 +138,11 @@ Iterates through multiple filter combinations and verifies consistent structure:
 
 ```typescript
 const testCases = [
-  {},
-  { verified: 'true' },
-  { search: 'test' },
-  { verified: 'false', search: 'alice' },
-  { limit: '5', offset: '10' },
+   {},
+   { verified: 'true' },
+   { search: 'test' },
+   { verified: 'false', search: 'alice' },
+   { limit: '5', offset: '10' },
 ];
 ```
 
@@ -201,47 +205,51 @@ npm test -- --watch creator-feed-empty-filters.integration.test.ts
 ### Successful Empty Response
 
 **Request:**
+
 ```bash
 GET /api/v1/creators?verified=true&search=nonexistent
 ```
 
 **Response:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "items": [],
-    "meta": {
-      "limit": 20,
-      "offset": 0,
-      "total": 0,
-      "hasMore": false
-    }
-  }
+   "success": true,
+   "data": {
+      "items": [],
+      "meta": {
+         "limit": 20,
+         "offset": 0,
+         "total": 0,
+         "hasMore": false
+      }
+   }
 }
 ```
 
 ### Validation Error Response
 
 **Request:**
+
 ```bash
 GET /api/v1/creators?limit=invalid
 ```
 
 **Response:**
+
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid query parameters",
-    "details": [
-      {
-        "field": "limit",
-        "message": "Expected number, received string"
-      }
-    ]
-  }
+   "success": false,
+   "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Invalid query parameters",
+      "details": [
+         {
+            "field": "limit",
+            "message": "Expected number, received string"
+         }
+      ]
+   }
 }
 ```
 
@@ -249,13 +257,13 @@ GET /api/v1/creators?limit=invalid
 
 The test verifies that certain inputs are normalized:
 
-| Input | Normalized To | Reason |
-|-------|---------------|--------|
-| `search=""` | `undefined` | Empty string has no search value |
-| `search="   "` | `undefined` | Whitespace-only is meaningless |
-| `search="  alice  "` | `"alice"` | Trimmed whitespace |
-| `verified="true"` | `true` (boolean) | String to boolean coercion |
-| `verified="false"` | `false` (boolean) | String to boolean coercion |
+| Input                | Normalized To     | Reason                           |
+| -------------------- | ----------------- | -------------------------------- |
+| `search=""`          | `undefined`       | Empty string has no search value |
+| `search="   "`       | `undefined`       | Whitespace-only is meaningless   |
+| `search="  alice  "` | `"alice"`         | Trimmed whitespace               |
+| `verified="true"`    | `true` (boolean)  | String to boolean coercion       |
+| `verified="false"`   | `false` (boolean) | String to boolean coercion       |
 
 ## Deterministic Behavior
 
@@ -267,6 +275,7 @@ All tests are deterministic because:
 4. **Predictable outputs** - Known response structure
 
 This ensures:
+
 - Tests never flake
 - Results are reproducible
 - Fast execution (no I/O wait)

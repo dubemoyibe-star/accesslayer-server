@@ -80,62 +80,66 @@ Is variable in .env or system environment?
 ### Example 1: Optional with Default
 
 **Schema:**
+
 ```typescript
-PORT: z.coerce.number().default(3000)
+PORT: z.coerce.number().default(3000);
 ```
 
 **Scenarios:**
 
-| .env Value | Result | Source |
-|------------|--------|--------|
-| `PORT=4000` | `4000` | Environment |
-| `PORT=` (empty) | `3000` | Default |
-| (not set) | `3000` | Default |
+| .env Value      | Result | Source      |
+| --------------- | ------ | ----------- |
+| `PORT=4000`     | `4000` | Environment |
+| `PORT=` (empty) | `3000` | Default     |
+| (not set)       | `3000` | Default     |
 
 ### Example 2: Required (No Default)
 
 **Schema:**
+
 ```typescript
-DATABASE_URL: z.string().min(1, 'DATABASE_URL is required')
+DATABASE_URL: z.string().min(1, 'DATABASE_URL is required');
 ```
 
 **Scenarios:**
 
-| .env Value | Result | Source |
-|------------|--------|--------|
-| `DATABASE_URL=postgresql://...` | `postgresql://...` | Environment |
-| `DATABASE_URL=` (empty) | ❌ Startup fails | Validation error |
-| (not set) | ❌ Startup fails | Validation error |
+| .env Value                      | Result             | Source           |
+| ------------------------------- | ------------------ | ---------------- |
+| `DATABASE_URL=postgresql://...` | `postgresql://...` | Environment      |
+| `DATABASE_URL=` (empty)         | ❌ Startup fails   | Validation error |
+| (not set)                       | ❌ Startup fails   | Validation error |
 
 ### Example 3: Optional with Validation
 
 **Schema:**
+
 ```typescript
-PAYSTACK_PUBLIC_KEY: z.string().min(1).optional()
+PAYSTACK_PUBLIC_KEY: z.string().min(1).optional();
 ```
 
 **Scenarios:**
 
-| .env Value | Result | Source |
-|------------|--------|--------|
+| .env Value                        | Result        | Source      |
+| --------------------------------- | ------------- | ----------- |
 | `PAYSTACK_PUBLIC_KEY=pk_test_123` | `pk_test_123` | Environment |
-| `PAYSTACK_PUBLIC_KEY=` (empty) | `undefined` | Optional |
-| (not set) | `undefined` | Optional |
+| `PAYSTACK_PUBLIC_KEY=` (empty)    | `undefined`   | Optional    |
+| (not set)                         | `undefined`   | Optional    |
 
 ### Example 4: Enum with Default
 
 **Schema:**
+
 ```typescript
-MODE: z.enum(['development', 'production', 'test']).default('development')
+MODE: z.enum(['development', 'production', 'test']).default('development');
 ```
 
 **Scenarios:**
 
-| .env Value | Result | Source |
-|------------|--------|--------|
-| `MODE=production` | `production` | Environment |
-| `MODE=invalid` | ❌ Startup fails | Validation error |
-| (not set) | `development` | Default |
+| .env Value        | Result           | Source           |
+| ----------------- | ---------------- | ---------------- |
+| `MODE=production` | `production`     | Environment      |
+| `MODE=invalid`    | ❌ Startup fails | Validation error |
+| (not set)         | `development`    | Default          |
 
 ## Configuration Categories Summary
 
@@ -158,6 +162,7 @@ PAYSTACK_SECRET_KEY
 ```
 
 **Source Precedence:**
+
 ```
 Environment → Validation Failure
 ```
@@ -182,6 +187,7 @@ INDEXER_CURSOR_STALE_AGE_WARNING_MS (default: 300000)
 ```
 
 **Source Precedence:**
+
 ```
 Environment → Schema Default
 ```
@@ -195,6 +201,7 @@ PAYSTACK_PUBLIC_KEY
 ```
 
 **Source Precedence:**
+
 ```
 Environment → undefined
 ```
@@ -205,25 +212,25 @@ Environment → undefined
 
 **Schema:** `z.coerce.number()`
 
-| Input | Output | Notes |
-|-------|--------|-------|
-| `"3000"` | `3000` | String coerced to number |
-| `3000` | `3000` | Already number |
-| `"abc"` | ❌ Error | Invalid number |
-| `""` | ❌ Error | Empty string |
+| Input    | Output   | Notes                    |
+| -------- | -------- | ------------------------ |
+| `"3000"` | `3000`   | String coerced to number |
+| `3000`   | `3000`   | Already number           |
+| `"abc"`  | ❌ Error | Invalid number           |
+| `""`     | ❌ Error | Empty string             |
 
 ### String to Boolean
 
 **Schema:** `z.coerce.boolean()`
 
-| Input | Output | Notes |
-|-------|--------|-------|
-| `"true"` | `true` | String to boolean |
+| Input     | Output  | Notes             |
+| --------- | ------- | ----------------- |
+| `"true"`  | `true`  | String to boolean |
 | `"false"` | `false` | String to boolean |
-| `"1"` | `true` | Truthy coercion |
-| `"0"` | `false` | Falsy coercion |
-| `""` | `false` | Empty is falsy |
-| `true` | `true` | Already boolean |
+| `"1"`     | `true`  | Truthy coercion   |
+| `"0"`     | `false` | Falsy coercion    |
+| `""`      | `false` | Empty is falsy    |
+| `true`    | `true`  | Already boolean   |
 
 ## Override Hierarchy
 
@@ -261,10 +268,11 @@ PORT: z.coerce.number().default(3000)
 ### Pattern 1: Feature Flags
 
 ```typescript
-ENABLE_FEATURE: z.coerce.boolean().default(false)
+ENABLE_FEATURE: z.coerce.boolean().default(false);
 ```
 
 **Usage:**
+
 ```typescript
 if (envConfig.ENABLE_FEATURE) {
    // Feature enabled
@@ -276,10 +284,11 @@ if (envConfig.ENABLE_FEATURE) {
 ### Pattern 2: Timeouts/Thresholds
 
 ```typescript
-TIMEOUT_MS: z.coerce.number().int().positive().default(5000)
+TIMEOUT_MS: z.coerce.number().int().positive().default(5000);
 ```
 
 **Usage:**
+
 ```typescript
 setTimeout(() => {}, envConfig.TIMEOUT_MS);
 ```
@@ -289,10 +298,11 @@ setTimeout(() => {}, envConfig.TIMEOUT_MS);
 ### Pattern 3: Environment-Specific Behavior
 
 ```typescript
-MODE: z.enum(['development', 'production', 'test']).default('development')
+MODE: z.enum(['development', 'production', 'test']).default('development');
 ```
 
 **Usage:**
+
 ```typescript
 if (envConfig.MODE === 'production') {
    // Production-only behavior
@@ -304,10 +314,11 @@ if (envConfig.MODE === 'production') {
 ### Pattern 4: Secrets with Dev Defaults
 
 ```typescript
-APP_SECRET: z.string().min(32).default('dev_secret_32_chars_long_string')
+APP_SECRET: z.string().min(32).default('dev_secret_32_chars_long_string');
 ```
 
 **Usage:**
+
 ```typescript
 const secret = envConfig.APP_SECRET;
 ```
@@ -384,13 +395,13 @@ const port = envConfig.PORT; // Always returns same value
 
 ## Quick Troubleshooting
 
-| Symptom | Likely Cause | Solution |
-|---------|--------------|----------|
-| Startup fails with "required" error | Missing required env var | Add to `.env` |
-| Using default instead of .env value | Typo in variable name | Check spelling |
-| Changes not reflected | Server not restarted | Restart server |
-| Type validation error | Wrong value format | Check type (number, boolean, etc.) |
-| URL validation error | Missing protocol | Add `https://` |
+| Symptom                             | Likely Cause             | Solution                           |
+| ----------------------------------- | ------------------------ | ---------------------------------- |
+| Startup fails with "required" error | Missing required env var | Add to `.env`                      |
+| Using default instead of .env value | Typo in variable name    | Check spelling                     |
+| Changes not reflected               | Server not restarted     | Restart server                     |
+| Type validation error               | Wrong value format       | Check type (number, boolean, etc.) |
+| URL validation error                | Missing protocol         | Add `https://`                     |
 
 ## See Also
 

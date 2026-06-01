@@ -19,15 +19,18 @@ Environment Variable → Schema Default → Required (fail if missing)
 ```
 
 **Example:**
+
 ```typescript
-PORT: z.coerce.number().default(3000)
+PORT: z.coerce.number().default(3000);
 ```
+
 - If `PORT=4000` in `.env` → uses `4000`
 - If `PORT` not set → uses default `3000`
 
 ```typescript
-DATABASE_URL: z.string().min(1, 'DATABASE_URL is required')
+DATABASE_URL: z.string().min(1, 'DATABASE_URL is required');
 ```
+
 - If `DATABASE_URL` in `.env` → uses that value
 - If `DATABASE_URL` not set → **startup fails** with error message
 
@@ -45,6 +48,7 @@ dotenv.config();
 **File Location:** `.env` in project root
 
 **Loading Behavior:**
+
 - Reads `.env` file if it exists
 - Does not override existing environment variables
 - Silent if `.env` file is missing (uses system environment)
@@ -65,6 +69,7 @@ export const envConfig = envSchema.parse(process.env);
 ```
 
 **Validation Process:**
+
 1. Reads `process.env` (includes `.env` values)
 2. Applies type coercion (e.g., string → number)
 3. Validates against schema rules
@@ -89,19 +94,19 @@ const origins = appConfig.allowedOrigins;
 
 These values **must** be provided via environment variables:
 
-| Variable | Type | Description |
-|----------|------|-------------|
-| `DATABASE_URL` | string | PostgreSQL connection string |
-| `GMAIL_USER` | string | Gmail account for email sending |
-| `GMAIL_APP_PASSWORD` | string | Gmail app-specific password |
-| `GOOGLE_CLIENT_ID` | string | Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | string | Google OAuth client secret |
-| `BACKEND_URL` | URL | Backend server URL |
-| `FRONTEND_URL` | URL | Frontend application URL |
-| `CLOUDINARY_CLOUD_NAME` | string | Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | string | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | string | Cloudinary API secret |
-| `PAYSTACK_SECRET_KEY` | string | Paystack secret key |
+| Variable                | Type   | Description                     |
+| ----------------------- | ------ | ------------------------------- |
+| `DATABASE_URL`          | string | PostgreSQL connection string    |
+| `GMAIL_USER`            | string | Gmail account for email sending |
+| `GMAIL_APP_PASSWORD`    | string | Gmail app-specific password     |
+| `GOOGLE_CLIENT_ID`      | string | Google OAuth client ID          |
+| `GOOGLE_CLIENT_SECRET`  | string | Google OAuth client secret      |
+| `BACKEND_URL`           | URL    | Backend server URL              |
+| `FRONTEND_URL`          | URL    | Frontend application URL        |
+| `CLOUDINARY_CLOUD_NAME` | string | Cloudinary cloud name           |
+| `CLOUDINARY_API_KEY`    | string | Cloudinary API key              |
+| `CLOUDINARY_API_SECRET` | string | Cloudinary API secret           |
+| `PAYSTACK_SECRET_KEY`   | string | Paystack secret key             |
 
 **Startup Behavior:** Server fails to start if any required value is missing.
 
@@ -109,21 +114,34 @@ These values **must** be provided via environment variables:
 
 These values have defaults and can be overridden:
 
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `PORT` | number | `3000` | Server port |
-| `MODE` | enum | `development` | Environment mode |
-| `APP_SECRET` | string | (dev key) | Secret for signing/encryption |
-| `API_VERSION` | string | `1.0.0` | API version string |
-| `ENABLE_RESPONSE_TIMING` | boolean | `true` | Enable timing headers |
-| `ENABLE_API_VERSION_HEADER` | boolean | `true` | Enable version header |
-| `ENABLE_SCHEMA_VERSION_HEADER` | boolean | `true` | Enable schema header |
-| `ENABLE_REQUEST_LOGGING` | boolean | `true` | Enable request logging |
-| `INDEXER_JITTER_FACTOR` | number | `0.1` | Jitter factor (0-1) |
-| `BACKGROUND_JOB_LOCK_TTL_MS` | number | `300000` | Job lock TTL (5 min) |
-| `CREATOR_LIST_SLOW_QUERY_THRESHOLD_MS` | number | `500` | Slow query threshold |
-| `INDEXER_CURSOR_STALE_AGE_WARNING_MS` | number | `300000` | Stale cursor warning (5 min) |
-| `PAYSTACK_PUBLIC_KEY` | string | (optional) | Paystack public key |
+| Variable                               | Type    | Default       | Description                   |
+| -------------------------------------- | ------- | ------------- | ----------------------------- |
+| `PORT`                                 | number  | `3000`        | Server port                   |
+| `MODE`                                 | enum    | `development` | Environment mode              |
+| `DB_QUERY_TIMEOUT_MS`                  | number  | `5000`        | Prisma query timeout in ms    |
+| `APP_SECRET`                           | string  | (dev key)     | Secret for signing/encryption |
+| `API_VERSION`                          | string  | `1.0.0`       | API version string            |
+| `ENABLE_RESPONSE_TIMING`               | boolean | `true`        | Enable timing headers         |
+| `ENABLE_API_VERSION_HEADER`            | boolean | `true`        | Enable version header         |
+| `ENABLE_SCHEMA_VERSION_HEADER`         | boolean | `true`        | Enable schema header          |
+| `ENABLE_REQUEST_LOGGING`               | boolean | `true`        | Enable request logging        |
+| `INDEXER_JITTER_FACTOR`                | number  | `0.1`         | Jitter factor (0-1)           |
+| `BACKGROUND_JOB_LOCK_TTL_MS`           | number  | `300000`      | Job lock TTL (5 min)          |
+| `CREATOR_LIST_SLOW_QUERY_THRESHOLD_MS` | number  | `500`         | Slow query threshold          |
+| `INDEXER_CURSOR_STALE_AGE_WARNING_MS`  | number  | `300000`      | Stale cursor warning (5 min)  |
+| `INDEXER_HEARTBEAT_STALE_THRESHOLD_MS` | number  | `300000`      | Heartbeat stale threshold     |
+| `ENABLE_INDEXER_DEDUPE`                | boolean | `true`        | Enable dedupe guard           |
+| `ENABLE_INDEXER_DLQ`                   | boolean | `true`        | Enable indexer dead-lettering |
+| `ENABLE_INDEXER_CURSOR_STALENESS_WARNING` | boolean | `true`      | Warn on stale cursors         |
+| `STELLAR_NETWORK`                      | enum    | `testnet`     | Stellar network selection     |
+| `STELLAR_HORIZON_URL`                  | URL     | testnet URL   | Horizon endpoint              |
+| `STELLAR_SOROBAN_RPC_URL`              | URL     | testnet URL   | Soroban RPC endpoint          |
+| `OWNERSHIP_SNAPSHOT_TABLE_NAME`        | string  | `creator_ownership_snapshots` | Snapshot table name |
+| `OWNERSHIP_SNAPSHOT_CLEANUP_DRY_RUN`   | boolean | `true`        | Log deletes without executing |
+| `OWNERSHIP_SNAPSHOT_RETENTION_DAYS`    | number  | `30`          | Retention window in days      |
+| `OWNERSHIP_SNAPSHOT_CLEANUP_ENABLED`   | boolean | `false`       | Enable cleanup scheduler      |
+| `OWNERSHIP_SNAPSHOT_CLEANUP_INTERVAL_MINUTES` | number | `60`    | Cleanup scheduler interval    |
+| `PAYSTACK_PUBLIC_KEY`                  | string  | (optional)    | Paystack public key           |
 
 **Startup Behavior:** Uses default if not provided in environment.
 
@@ -148,6 +166,7 @@ export const appConfig = {
 ### Development
 
 **Recommended `.env` values:**
+
 ```bash
 MODE=development
 PORT=3000
@@ -158,6 +177,7 @@ APP_SECRET=your_32_character_long_secret_string_here
 ```
 
 **Behavior:**
+
 - Verbose logging (includes query logs)
 - Detailed error messages with stack traces
 - Higher rate limits
@@ -166,6 +186,7 @@ APP_SECRET=your_32_character_long_secret_string_here
 ### Production
 
 **Required environment variables:**
+
 ```bash
 MODE=production
 PORT=3000
@@ -177,6 +198,7 @@ APP_SECRET=<secure-random-32-char-string>
 ```
 
 **Behavior:**
+
 - Minimal logging (errors only)
 - Generic error messages (no stack traces)
 - Stricter rate limits
@@ -185,6 +207,7 @@ APP_SECRET=<secure-random-32-char-string>
 ### Test
 
 **Recommended `.env.test` values:**
+
 ```bash
 MODE=test
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/accesslayer_test
@@ -192,6 +215,7 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/accesslayer_test
 ```
 
 **Behavior:**
+
 - Test-specific database
 - Minimal logging
 - Fast timeouts
@@ -203,10 +227,11 @@ The configuration system automatically coerces string values to appropriate type
 ### Number Coercion
 
 ```typescript
-PORT: z.coerce.number().default(3000)
+PORT: z.coerce.number().default(3000);
 ```
 
 **Examples:**
+
 - `PORT=4000` → `4000` (number)
 - `PORT="4000"` → `4000` (number)
 - `PORT=invalid` → validation error
@@ -214,10 +239,11 @@ PORT: z.coerce.number().default(3000)
 ### Boolean Coercion
 
 ```typescript
-ENABLE_RESPONSE_TIMING: z.coerce.boolean().default(true)
+ENABLE_RESPONSE_TIMING: z.coerce.boolean().default(true);
 ```
 
 **Examples:**
+
 - `ENABLE_RESPONSE_TIMING=true` → `true`
 - `ENABLE_RESPONSE_TIMING=false` → `false`
 - `ENABLE_RESPONSE_TIMING=1` → `true`
@@ -227,10 +253,11 @@ ENABLE_RESPONSE_TIMING: z.coerce.boolean().default(true)
 ### Enum Validation
 
 ```typescript
-MODE: z.enum(['development', 'production', 'test']).default('development')
+MODE: z.enum(['development', 'production', 'test']).default('development');
 ```
 
 **Examples:**
+
 - `MODE=production` → `"production"`
 - `MODE=invalid` → validation error
 
@@ -239,32 +266,36 @@ MODE: z.enum(['development', 'production', 'test']).default('development')
 ### String Validation
 
 ```typescript
-DATABASE_URL: z.string().min(1, 'DATABASE_URL is required')
+DATABASE_URL: z.string().min(1, 'DATABASE_URL is required');
 ```
+
 - Must be non-empty string
 - Fails with custom error message if missing
 
 ### URL Validation
 
 ```typescript
-FRONTEND_URL: z.string().url('FRONTEND_URL must be a valid URL')
+FRONTEND_URL: z.string().url('FRONTEND_URL must be a valid URL');
 ```
+
 - Must be valid URL format
 - Includes protocol (http:// or https://)
 
 ### Number Range Validation
 
 ```typescript
-INDEXER_JITTER_FACTOR: z.coerce.number().min(0).max(1).default(0.1)
+INDEXER_JITTER_FACTOR: z.coerce.number().min(0).max(1).default(0.1);
 ```
+
 - Must be between 0 and 1
 - Coerced from string to number
 
 ### Positive Integer Validation
 
 ```typescript
-BACKGROUND_JOB_LOCK_TTL_MS: z.coerce.number().int().positive().default(300000)
+BACKGROUND_JOB_LOCK_TTL_MS: z.coerce.number().int().positive().default(300000);
 ```
+
 - Must be positive integer
 - No decimals allowed
 
@@ -307,11 +338,13 @@ function warnIfStale(
 ### Startup Fails with "Required" Error
 
 **Error:**
+
 ```
 ZodError: DATABASE_URL is required in the environment variables
 ```
 
 **Solution:**
+
 1. Check `.env` file exists in project root
 2. Verify variable is defined: `DATABASE_URL=...`
 3. Ensure no typos in variable name
@@ -320,11 +353,13 @@ ZodError: DATABASE_URL is required in the environment variables
 ### Type Validation Errors
 
 **Error:**
+
 ```
 ZodError: Expected number, received string
 ```
 
 **Solution:**
+
 1. Check value format matches expected type
 2. For numbers: use digits only (e.g., `PORT=3000`)
 3. For booleans: use `true`/`false` or `1`/`0`
@@ -333,11 +368,13 @@ ZodError: Expected number, received string
 ### URL Validation Errors
 
 **Error:**
+
 ```
 ZodError: FRONTEND_URL must be a valid URL
 ```
 
 **Solution:**
+
 1. Include protocol: `https://example.com` not `example.com`
 2. Check for typos in URL
 3. Ensure no trailing spaces
@@ -345,10 +382,12 @@ ZodError: FRONTEND_URL must be a valid URL
 ### Environment Variables Not Loading
 
 **Symptoms:**
+
 - Defaults used instead of `.env` values
 - Changes to `.env` not reflected
 
 **Solution:**
+
 1. Verify `.env` file is in project root (not `src/`)
 2. Restart server after changing `.env`
 3. Check file is named exactly `.env` (not `.env.txt`)
@@ -359,11 +398,13 @@ ZodError: FRONTEND_URL must be a valid URL
 ### Secrets Management
 
 **Development:**
+
 - Use `.env` file (gitignored)
 - Never commit `.env` to version control
 - Use `.env.example` as template
 
 **Production:**
+
 - Use environment variables from hosting platform
 - Use secrets management service (AWS Secrets Manager, etc.)
 - Rotate secrets regularly
@@ -371,11 +412,13 @@ ZodError: FRONTEND_URL must be a valid URL
 ### APP_SECRET
 
 **Requirements:**
+
 - Minimum 32 characters
 - Use cryptographically random string
 - Different value per environment
 
 **Generate secure secret:**
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
@@ -383,6 +426,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ### Database Credentials
 
 **Best Practices:**
+
 - Use strong passwords
 - Limit database user permissions
 - Use SSL/TLS for connections
@@ -392,11 +436,11 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ### Primary Files
 
-| File | Purpose | Version Control |
-|------|---------|-----------------|
-| `.env` | Local environment variables | ❌ Gitignored |
-| `.env.example` | Template with defaults | ✅ Committed |
-| `src/config.ts` | Schema and validation | ✅ Committed |
+| File            | Purpose                     | Version Control |
+| --------------- | --------------------------- | --------------- |
+| `.env`          | Local environment variables | ❌ Gitignored   |
+| `.env.example`  | Template with defaults      | ✅ Committed    |
+| `src/config.ts` | Schema and validation       | ✅ Committed    |
 
 ### Configuration Flow
 
@@ -452,4 +496,5 @@ const value = envConfig.NEW_CONFIG_VALUE;
 
 - [API Versioning](./api-versioning.md) - API version configuration
 - [Query Debug](./query-normalization-debug.md) - Debug logging configuration
+- [Rate Limiting](./rate-limiting.md) - Rate limiting configuration and thresholds
 - [README](../README.md) - Local setup instructions

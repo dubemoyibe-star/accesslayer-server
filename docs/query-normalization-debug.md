@@ -7,21 +7,25 @@ The query normalization debug helper provides diagnostic snapshots of query pars
 ## Features
 
 ### 1. Optional Debug Logging
+
 - Only active when logger is set to `debug` level
 - Zero performance impact in production (info/warn/error levels)
 - Controlled via environment or logger configuration
 
 ### 2. Automatic Sanitization
+
 - Prevents sensitive data leakage in debug logs
 - Redacts fields matching sensitive patterns:
-  - `password`, `token`, `secret`, `key`
-  - `auth`, `credential`, `email`, `phone`
-  - `ssn`, `credit`, `card`
+   - `password`, `token`, `secret`, `key`
+   - `auth`, `credential`, `email`, `phone`
+   - `ssn`, `credit`, `card`
 - Case-insensitive pattern matching
 - Recursive sanitization for nested objects and arrays
 
 ### 3. Comprehensive Snapshots
+
 Each debug snapshot includes:
+
 - **raw**: Original query before normalization
 - **normalized**: Parsed and transformed query
 - **valid**: Whether validation passed
@@ -38,11 +42,9 @@ import { parsePublicQuery } from '../utils/public-query-parse.utils';
 import { CreatorListQuerySchema } from './creators.schemas';
 
 // Add debugContext option to enable debug snapshots
-const parsed = parsePublicQuery(
-   CreatorListQuerySchema,
-   req.query,
-   { debugContext: 'creator-list-query' }
-);
+const parsed = parsePublicQuery(CreatorListQuerySchema, req.query, {
+   debugContext: 'creator-list-query',
+});
 ```
 
 ### Direct Usage
@@ -90,6 +92,7 @@ export const logger = pino({
 ```
 
 Or via environment variable:
+
 ```bash
 LOG_LEVEL=debug npm run dev
 ```
@@ -97,6 +100,7 @@ LOG_LEVEL=debug npm run dev
 ### Disable Debug Logging (Default)
 
 Keep logger at `info` level or higher:
+
 ```bash
 LOG_LEVEL=info npm start
 ```
@@ -107,28 +111,28 @@ When debug logging is enabled, you'll see output like:
 
 ```json
 {
-  "level": 20,
-  "time": "2026-04-28T16:30:00.000Z",
-  "msg": "Query normalization debug snapshot",
-  "queryNormalization": {
-    "raw": {
-      "limit": "20",
-      "offset": "0",
-      "sort": "createdAt",
-      "order": "desc",
-      "search": "  alice  "
-    },
-    "normalized": {
-      "limit": 20,
-      "offset": 0,
-      "sort": "createdAt",
-      "order": "desc",
-      "search": "alice"
-    },
-    "valid": true,
-    "timestamp": "2026-04-28T16:30:00.123Z",
-    "context": "creator-list-query"
-  }
+   "level": 20,
+   "time": "2026-04-28T16:30:00.000Z",
+   "msg": "Query normalization debug snapshot",
+   "queryNormalization": {
+      "raw": {
+         "limit": "20",
+         "offset": "0",
+         "sort": "createdAt",
+         "order": "desc",
+         "search": "  alice  "
+      },
+      "normalized": {
+         "limit": 20,
+         "offset": 0,
+         "sort": "createdAt",
+         "order": "desc",
+         "search": "alice"
+      },
+      "valid": true,
+      "timestamp": "2026-04-28T16:30:00.123Z",
+      "context": "creator-list-query"
+   }
 }
 ```
 
@@ -136,25 +140,25 @@ When debug logging is enabled, you'll see output like:
 
 ```json
 {
-  "level": 20,
-  "time": "2026-04-28T16:30:00.000Z",
-  "msg": "Query normalization debug snapshot",
-  "queryNormalization": {
-    "raw": {
-      "limit": "invalid",
-      "offset": "0"
-    },
-    "normalized": null,
-    "valid": false,
-    "errors": [
-      {
-        "field": "limit",
-        "message": "Expected number, received string"
-      }
-    ],
-    "timestamp": "2026-04-28T16:30:00.123Z",
-    "context": "creator-list-query"
-  }
+   "level": 20,
+   "time": "2026-04-28T16:30:00.000Z",
+   "msg": "Query normalization debug snapshot",
+   "queryNormalization": {
+      "raw": {
+         "limit": "invalid",
+         "offset": "0"
+      },
+      "normalized": null,
+      "valid": false,
+      "errors": [
+         {
+            "field": "limit",
+            "message": "Expected number, received string"
+         }
+      ],
+      "timestamp": "2026-04-28T16:30:00.123Z",
+      "context": "creator-list-query"
+   }
 }
 ```
 
@@ -162,21 +166,21 @@ When debug logging is enabled, you'll see output like:
 
 ```json
 {
-  "level": 20,
-  "time": "2026-04-28T16:30:00.000Z",
-  "msg": "Query normalization debug snapshot",
-  "queryNormalization": {
-    "raw": {
-      "username": "alice",
-      "password": "[REDACTED]",
-      "email": "[REDACTED]",
-      "token": "[REDACTED]"
-    },
-    "normalized": null,
-    "valid": false,
-    "timestamp": "2026-04-28T16:30:00.123Z",
-    "context": "auth-query"
-  }
+   "level": 20,
+   "time": "2026-04-28T16:30:00.000Z",
+   "msg": "Query normalization debug snapshot",
+   "queryNormalization": {
+      "raw": {
+         "username": "alice",
+         "password": "[REDACTED]",
+         "email": "[REDACTED]",
+         "token": "[REDACTED]"
+      },
+      "normalized": null,
+      "valid": false,
+      "timestamp": "2026-04-28T16:30:00.123Z",
+      "context": "auth-query"
+   }
 }
 ```
 
@@ -185,6 +189,7 @@ When debug logging is enabled, you'll see output like:
 ### Sensitive Field Patterns
 
 The helper automatically redacts fields matching these patterns:
+
 - `password` - Passwords, passphrases
 - `token` - Auth tokens, API tokens, JWT tokens
 - `secret` - API secrets, client secrets
@@ -222,6 +227,7 @@ const SENSITIVE_FIELD_PATTERNS = [
 ### 1. Diagnosing Query Parsing Issues
 
 When users report unexpected query behavior:
+
 ```typescript
 // Enable debug logging
 // Reproduce the issue
@@ -231,18 +237,18 @@ When users report unexpected query behavior:
 ### 2. Validating Normalization Logic
 
 When implementing new query transformations:
+
 ```typescript
-const parsed = parsePublicQuery(
-   NewQuerySchema,
-   testQuery,
-   { debugContext: 'new-query-test' }
-);
+const parsed = parsePublicQuery(NewQuerySchema, testQuery, {
+   debugContext: 'new-query-test',
+});
 // Check debug output to verify transformations
 ```
 
 ### 3. Understanding Query Flow
 
 When onboarding new developers:
+
 ```typescript
 // Enable debug logging
 // Make API requests
@@ -252,6 +258,7 @@ When onboarding new developers:
 ### 4. Testing Edge Cases
 
 When testing unusual query inputs:
+
 ```typescript
 const edgeCases = [
    { limit: '  10  ', offset: '' },
@@ -268,11 +275,13 @@ edgeCases.forEach(query => {
 ## Performance Impact
 
 ### When Debug Logging is Disabled (Default)
+
 - **Zero overhead** - Early return if debug level not enabled
 - **No sanitization** - Sanitization only runs when logging
 - **No object cloning** - No memory allocation for snapshots
 
 ### When Debug Logging is Enabled
+
 - **Minimal overhead** - Only sanitization and JSON serialization
 - **Async logging** - Pino handles logging asynchronously
 - **Bounded memory** - Snapshots are logged and released immediately
@@ -286,6 +295,7 @@ npx ts-node src/utils/test/query-normalization-debug.utils.test.ts
 ```
 
 Tests cover:
+
 - Debug log emission when enabled/disabled
 - Sensitive field sanitization
 - Nested object sanitization
@@ -315,6 +325,7 @@ The debug helper is integrated into:
 ## Future Enhancements
 
 Potential improvements:
+
 - Configurable sanitization patterns via environment
 - Query performance metrics in snapshots
 - Diff view for before/after normalization

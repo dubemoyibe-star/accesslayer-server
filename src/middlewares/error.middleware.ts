@@ -1,4 +1,3 @@
-// src/middlewares/error.middleware.ts
 import { NextFunction, Request, Response } from 'express';
 import { envConfig } from '../config';
 import { ErrorRequestHandler } from 'express';
@@ -8,6 +7,9 @@ import { ErrorCode, ErrorCodeType } from '../constants/error.constants';
 import { logger } from '../utils/logger.utils';
 import { RpcTimeoutError } from '../utils/rpc-timeout.utils';
 import { mapUnknownRouteError } from '../utils/route-error.utils';
+import { buildErrorContext } from '../utils/error-context.utils';
+import { sanitizeLogFieldValue } from '../utils/log-field-sanitizer.utils';
+import { buildErrorResponse, zodIssuesToDetails } from '../utils/api-response.utils';
 
 export class ApiError extends Error {
    statusCode: number;
@@ -67,10 +69,19 @@ export const errorHandler: ErrorRequestHandler = (
    res: Response,
    _next: NextFunction
 ): void => {
-   // Log error details
-   console.error('🚨 Error caught by global handler:');
-   console.error('URL:', req.method, req.originalUrl);
-   console.error('Error:', err);
+   // Log a consistent, structured error context (request id + normalized code
+   // together) so failures can be correlated with the response envelope. Stack
+   // traces are only attached in development builds.
+   logger.error(
+      {
+         ...buildErrorContext(err, {
+            requestId: req.requestId,
+            includeStack: envConfig.MODE === 'development',
+         }),
+         route: `${req.method} ${sanitizeLogFieldValue(req.originalUrl)}`,
+      },
+      'Error caught by global handler'
+   );
 
    if (isCreatorListTimeout(err, req)) {
       logger.warn({
@@ -85,17 +96,25 @@ export const errorHandler: ErrorRequestHandler = (
 
    // Handle Zod validation errors
    if (err instanceof z.ZodError || err.name === 'ZodError') {
-      res.status(400).json({
-         success: false,
-         code: ErrorCode.VALIDATION_ERROR,
-         message: 'Validation failed',
-         errors: err.errors || err.issues,
-      });
+      const issues: z.ZodIssue[] = err.errors ?? err.issues ?? [];
+      res.status(400).json(
+         buildErrorResponse(
+            ErrorCode.VALIDATION_ERROR,
+            'Validation failed',
+            zodIssuesToDetails(issues)
+         )
+      );
       return;
    }
 
    // Handle JWT errors
    if (err.name === 'JsonWebTokenError') {
+      logger.warn({
+         msg: 'Auth token validation failed',
+         reason: err.message,
+         route: `${req.method} ${sanitizeLogFieldValue(req.originalUrl)}`,
+         requestId: req.requestId,
+      });
       res.status(401).json({
          success: false,
          code: ErrorCode.JWT_ERROR,
@@ -105,6 +124,12 @@ export const errorHandler: ErrorRequestHandler = (
    }
 
    if (err.name === 'TokenExpiredError') {
+      logger.warn({
+         msg: 'Auth token validation failed',
+         reason: 'Token has expired',
+         route: `${req.method} ${sanitizeLogFieldValue(req.originalUrl)}`,
+         requestId: req.requestId,
+      });
       res.status(401).json({
          success: false,
          code: ErrorCode.JWT_ERROR,
@@ -157,7 +182,7 @@ export const errorHandler: ErrorRequestHandler = (
    ) {
       logger.warn({
          msg: 'Request payload too large',
-         route: `${req.method} ${req.originalUrl}`,
+         route: `${req.method} ${sanitizeLogFieldValue(req.originalUrl)}`,
          contentLength: req.headers['content-length'],
          limitBytes: err.limit,
       });

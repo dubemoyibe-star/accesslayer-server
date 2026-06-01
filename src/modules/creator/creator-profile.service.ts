@@ -1,9 +1,34 @@
 import { prisma } from '../../utils/prisma.utils';
+import { logger } from '../../utils/logger.utils';
 import {
    CreatorProfileReadResponse,
    UpsertCreatorProfileBody,
 } from './creator-profile.schemas';
 import { CREATOR_DETAIL_DEFAULT_SELECT } from '../../constants/creator-detail-include.constants';
+import { formatIsoTimestamp } from '../../utils/iso-timestamp.utils';
+import { normalizeSocialLinkUrl } from './creator-social-link-url.utils';
+
+function normalizeProfileLinks(
+   links: UpsertCreatorProfileBody['links']
+): UpsertCreatorProfileBody['links'] {
+   if (!links) {
+      return links;
+   }
+
+   return links.map((link) => ({
+      ...link,
+      url: normalizeSocialLinkUrl(link.url),
+   }));
+}
+
+function buildCreatorDetailCacheMissContext(creatorId: string) {
+   return {
+      event: 'creator_detail_cache_miss',
+      creatorId,
+      lookupKeys: ['id', 'handle'],
+      source: 'creator-profile-service',
+   };
+}
 
 /**
  * Reads a creator profile from the database.
@@ -21,12 +46,22 @@ export async function getCreatorProfile(
    });
 
    if (!profile) {
+      logger.warn(
+         {
+            ...buildCreatorDetailCacheMissContext(creatorId),
+            type: 'creator_profile_cache_miss',
+         },
+         'Creator profile cache miss; returning placeholder response'
+      );
+
       // Fallback for placeholder behavior if profile not found
       return {
          creatorId,
          displayName: null,
          bio: null,
          avatarUrl: null,
+         createdAt: null,
+         updatedAt: null,
          perks: [],
          links: [],
          metadata: {
@@ -41,6 +76,8 @@ export async function getCreatorProfile(
       displayName: profile.displayName,
       bio: profile.bio,
       avatarUrl: profile.avatarUrl,
+      createdAt: formatIsoTimestamp(profile.createdAt),
+      updatedAt: formatIsoTimestamp(profile.updatedAt),
       perks: (profile.perks as any) || [],
       links: [], // Links are not yet in the Prisma model, keeping as part of contract
       metadata: {
@@ -63,21 +100,26 @@ export async function upsertCreatorProfile(
    acceptedProfile: UpsertCreatorProfileBody;
    metadata: { source: 'database'; persisted: boolean };
 }> {
+   const normalizedPayload: UpsertCreatorProfileBody = {
+      ...payload,
+      links: normalizeProfileLinks(payload.links),
+   };
+
    const profile = await prisma.creatorProfile.update({
       where: {
          id: creatorId,
       },
       data: {
-         displayName: payload.displayName,
-         bio: payload.bio,
-         avatarUrl: payload.avatarUrl,
-         perks: payload.perks as any,
+         displayName: normalizedPayload.displayName,
+         bio: normalizedPayload.bio,
+         avatarUrl: normalizedPayload.avatarUrl,
+         perks: normalizedPayload.perks as any,
       },
    });
 
    return {
       creatorId: profile.id,
-      acceptedProfile: payload,
+      acceptedProfile: normalizedPayload,
       metadata: {
          source: 'database',
          persisted: true,

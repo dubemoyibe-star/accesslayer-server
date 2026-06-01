@@ -45,3 +45,28 @@ Full system snapshot including memory, uptime, system info, database
 response time, chain-sync lag and per-service health flags. Intended for
 operators rather than load balancers — cheaper liveness/readiness paths
 should be preferred for automated probing.
+
+### Field order and grouping
+
+The detailed health payload should preserve this top-level order to keep
+JSON snapshots predictable for contributors and dashboards:
+
+1. `success`
+2. `message`
+3. `timestamp`
+4. `version`
+5. `environment`
+6. `uptime`
+7. `memory`
+8. `system`
+9. `database`
+10.   `syncing`
+11.   `services`
+
+Nested grouping follows the same convention:
+
+- `memory`: `used`, `total`
+- `system`: `platform`, `nodeVersion`
+- `database`: `status`, `responseTime` (when connected)
+- `syncing`: `status`, `latestIndexedLedger`, `observedHeadLedger`, `syncLagLedgers`
+- `services`: ordered as `API Server`, `Database`, `Chain Sync`

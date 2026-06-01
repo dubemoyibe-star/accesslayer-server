@@ -7,10 +7,12 @@ This document describes the centralized default field projection constants for c
 ## Problem
 
 Previously, creator list queries had duplicated or missing field projections:
+
 - `src/modules/creators/creators.utils.ts` - No `select` clause (fetched all fields)
 - `src/modules/creator/creator.service.ts` - Had an `include` clause with user relation
 
 This led to:
+
 - Inconsistent data fetching across endpoints
 - Potential performance issues from over-fetching
 - Maintenance burden when field requirements change
@@ -21,11 +23,11 @@ Created a centralized constant `CREATOR_LIST_DEFAULT_SELECT` in `src/constants/c
 
 ```typescript
 export const CREATOR_LIST_DEFAULT_SELECT = {
-  id: true,
-  handle: true,
-  displayName: true,
-  avatarUrl: true,
-  isVerified: true,
+   id: true,
+   handle: true,
+   displayName: true,
+   avatarUrl: true,
+   isVerified: true,
 } as const;
 ```
 
@@ -40,9 +42,11 @@ export const CREATOR_LIST_DEFAULT_SELECT = {
 ## Files Modified
 
 ### Created
+
 - `src/constants/creator-list-projection.constants.ts` - New constant definition
 
 ### Updated
+
 - `src/modules/creators/creators.utils.ts` - Added `select` clause using the constant
 - `src/modules/creator/creator.service.ts` - Replaced `include` with `select` using the constant
 - `src/modules/creator/creator.service.test.ts` - Updated test expectations and mock data
@@ -57,14 +61,15 @@ The response shape remains unchanged. The serializers (`creator-list-item.mapper
 import { CREATOR_LIST_DEFAULT_SELECT } from '../../constants/creator-list-projection.constants';
 
 const creators = await prisma.creatorProfile.findMany({
-  where: { isVerified: true },
-  select: CREATOR_LIST_DEFAULT_SELECT,
+   where: { isVerified: true },
+   select: CREATOR_LIST_DEFAULT_SELECT,
 });
 ```
 
 ## Testing
 
 The test suite has been updated to verify that:
+
 - The correct fields are selected in database queries
 - Mock data matches the projection shape
 - All existing functionality continues to work as expected
@@ -72,6 +77,7 @@ The test suite has been updated to verify that:
 ## Future Considerations
 
 If additional fields are needed for creator list responses:
+
 1. Add the field to `CREATOR_LIST_DEFAULT_SELECT`
 2. Update the corresponding TypeScript types if needed
 3. Update serializers if the field should be exposed in the API response
@@ -80,4 +86,5 @@ If additional fields are needed for creator list responses:
 ## Related Constants
 
 This follows the same pattern as:
+
 - `CREATOR_DETAIL_DEFAULT_SELECT` in `src/constants/creator-detail-include.constants.ts`
