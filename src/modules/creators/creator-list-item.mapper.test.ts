@@ -1,15 +1,16 @@
 import { strict as assert } from 'assert';
 import { mapCreatorListItem } from './creator-list-item.mapper';
+import { createSeededCreatorFixture } from '../../utils/test/seeded-creator-fixtures.utils';
 
 function run() {
-   const input = { id: '1', displayName: 'John', avatarUrl: null } as any;
+   const input = createSeededCreatorFixture(1);
 
    const result = mapCreatorListItem(input);
 
    assert.deepEqual(result, {
-      id: '1',
-      name: 'John',
-      avatar: null,
+      id: 'creator-1',
+      name: 'Creator 1',
+      avatar: 'https://example.com/avatar-1.png',
       followers: 0,
    });
 
