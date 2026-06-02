@@ -1,11 +1,19 @@
 import dotenv from 'dotenv';
 import { envSchema } from './config.schema';
+import { validateRequiredEnvVars } from './config.required';
 
 export { envSchema };
+export {
+   getMissingRequiredEnvVars,
+   MissingRequiredEnvError,
+   REQUIRED_ENV_VARS,
+   validateRequiredEnvVars,
+} from './config.required';
 
 // Load environment variables from .env file
 // Note: Does not override existing environment variables
 dotenv.config();
+validateRequiredEnvVars(process.env);
 
 /**
  * Validated and typed environment configuration.

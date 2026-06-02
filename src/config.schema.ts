@@ -20,7 +20,7 @@ import { z } from 'zod';
  * Zod's default z.coerce.boolean() returns true for any non-empty string,
  * including "false" and "0", which is usually not what we want for .env files.
  */
-const booleanCoerce = z.preprocess((val) => {
+const booleanCoerce = z.preprocess(val => {
    if (typeof val === 'string') {
       const lower = val.toLowerCase();
       if (lower === 'true' || lower === '1') return true;
@@ -29,12 +29,20 @@ const booleanCoerce = z.preprocess((val) => {
    return val;
 }, z.coerce.boolean());
 
+const optionalNonEmptyString = z.preprocess(val => {
+   if (typeof val === 'string' && val.trim().length === 0) {
+      return undefined;
+   }
+
+   return val;
+}, z.string().min(1).optional());
+
 export const envSchema = z
    .object({
       PORT: z.coerce.number().default(3000),
-      MODE: z.enum(['development', 'production', 'test']).default(
-         'development'
-      ),
+      MODE: z
+         .enum(['development', 'production', 'test'])
+         .default('development'),
       DATABASE_URL: z
          .string()
          .min(1, 'DATABASE_URL is required in the environment variables'),
@@ -70,10 +78,7 @@ export const envSchema = z
       PAYSTACK_SECRET_KEY: z
          .string()
          .min(1, 'PAYSTACK_SECRET_KEY is required for payment processing'),
-      PAYSTACK_PUBLIC_KEY: z
-         .string()
-         .min(1, 'PAYSTACK_PUBLIC_KEY is required for payment processing')
-         .optional(),
+      PAYSTACK_PUBLIC_KEY: optionalNonEmptyString,
       ENABLE_RESPONSE_TIMING: booleanCoerce.default(true),
       API_VERSION: z.string().default('1.0.0'),
       ENABLE_API_VERSION_HEADER: booleanCoerce.default(true),
@@ -87,11 +92,26 @@ export const envSchema = z
          .default('accesslayer_default_development_secret_key_32_bytes_long'),
 
       INDEXER_JITTER_FACTOR: z.coerce.number().min(0).max(1).default(0.1),
-      BACKGROUND_JOB_LOCK_TTL_MS: z.coerce.number().int().positive().default(300000),
+      BACKGROUND_JOB_LOCK_TTL_MS: z.coerce
+         .number()
+         .int()
+         .positive()
+         .default(300000),
       SLOW_QUERY_THRESHOLD_MS: z.coerce.number().int().positive().default(500),
-      CREATOR_LIST_SLOW_QUERY_THRESHOLD_MS: z.coerce.number().int().positive().default(500),
-      INDEXER_CURSOR_STALE_AGE_WARNING_MS: z.coerce.number().int().positive().default(300000),
-      INDEXER_HEARTBEAT_STALE_THRESHOLD_MS: z.coerce.number().positive().default(300000),
+      CREATOR_LIST_SLOW_QUERY_THRESHOLD_MS: z.coerce
+         .number()
+         .int()
+         .positive()
+         .default(500),
+      INDEXER_CURSOR_STALE_AGE_WARNING_MS: z.coerce
+         .number()
+         .int()
+         .positive()
+         .default(300000),
+      INDEXER_HEARTBEAT_STALE_THRESHOLD_MS: z.coerce
+         .number()
+         .positive()
+         .default(300000),
 
       // Indexer feature flags
       ENABLE_INDEXER_DEDUPE: booleanCoerce.default(true),
@@ -124,15 +144,20 @@ export const envSchema = z
          .min(1)
          .default('creator_ownership_snapshots'),
       OWNERSHIP_SNAPSHOT_CLEANUP_DRY_RUN: z.coerce.boolean().default(true),
-      OWNERSHIP_SNAPSHOT_RETENTION_DAYS: z.coerce.number().int().positive().default(30),
+      OWNERSHIP_SNAPSHOT_RETENTION_DAYS: z.coerce
+         .number()
+         .int()
+         .positive()
+         .default(30),
       OWNERSHIP_SNAPSHOT_CLEANUP_ENABLED: z.coerce.boolean().default(false),
-      OWNERSHIP_SNAPSHOT_CLEANUP_INTERVAL_MINUTES: z.coerce.number().int().positive().default(60),
+      OWNERSHIP_SNAPSHOT_CLEANUP_INTERVAL_MINUTES: z.coerce
+         .number()
+         .int()
+         .positive()
+         .default(60),
    })
    .superRefine((data, ctx) => {
-      if (
-         data.MODE === 'production' &&
-         data.STELLAR_NETWORK === 'testnet'
-      ) {
+      if (data.MODE === 'production' && data.STELLAR_NETWORK === 'testnet') {
          ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['STELLAR_NETWORK'],

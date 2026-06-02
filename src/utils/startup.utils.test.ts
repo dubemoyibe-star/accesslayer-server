@@ -10,8 +10,6 @@ jest.mock('./logger.utils', () => ({
 
 jest.mock('../config', () => ({
    envConfig: {
-      GMAIL_USER: '',
-      GMAIL_APP_PASSWORD: '',
       PAYSTACK_PUBLIC_KEY: undefined,
    },
 }));
@@ -27,9 +25,6 @@ describe('Startup Utilities', () => {
       expect(logger.warn).toHaveBeenCalledWith(
          expect.objectContaining({
             disabledDependencies: expect.arrayContaining([
-               expect.objectContaining({
-                  dependency: 'Email Transport (Gmail)',
-               }),
                expect.objectContaining({ dependency: 'Paystack Public Key' }),
             ]),
          }),
@@ -38,8 +33,6 @@ describe('Startup Utilities', () => {
    });
 
    it('should not emit a warning when all optional dependencies are present', () => {
-      envConfig.GMAIL_USER = 'user@gmail.com';
-      envConfig.GMAIL_APP_PASSWORD = 'secure-app-password';
       envConfig.PAYSTACK_PUBLIC_KEY = 'pk_test_123456789';
 
       checkOptionalDependencies();

@@ -9,7 +9,7 @@ import { envSchema } from './config.schema';
  * These tests validate the documented source precedence rules and Stellar-specific logic.
  */
 
-const booleanCoerce = z.preprocess((val) => {
+const booleanCoerce = z.preprocess(val => {
    if (typeof val === 'string') {
       const lower = val.toLowerCase();
       if (lower === 'true' || lower === '1') return true;
@@ -36,12 +36,13 @@ const BASE_ENV = {
 };
 
 describe('Config Validation and Source Precedence', () => {
-   
    describe('Stellar & General Schema Validation', () => {
       it('Defaults are applied correctly', () => {
          const defaults = envSchema.parse(BASE_ENV);
          expect(defaults.STELLAR_NETWORK).toBe('testnet');
-         expect(defaults.STELLAR_HORIZON_URL).toBe('https://horizon-testnet.stellar.org');
+         expect(defaults.STELLAR_HORIZON_URL).toBe(
+            'https://horizon-testnet.stellar.org'
+         );
          expect(defaults.API_VERSION).toBe('1.0.0');
          expect(defaults.ENABLE_INDEXER_DEDUPE).toBe(true);
       });
@@ -53,6 +54,15 @@ describe('Config Validation and Source Precedence', () => {
             STELLAR_HORIZON_URL: 'https://horizon.stellar.org',
          });
          expect(valid.success).toBe(true);
+      });
+
+      it('Optional PAYSTACK_PUBLIC_KEY accepts empty values as unset', () => {
+         const optionalKey = envSchema.parse({
+            ...BASE_ENV,
+            PAYSTACK_PUBLIC_KEY: '',
+         });
+
+         expect(optionalKey.PAYSTACK_PUBLIC_KEY).toBeUndefined();
       });
 
       it('Invalid STELLAR_NETWORK value is rejected', () => {
@@ -71,8 +81,10 @@ describe('Config Validation and Source Precedence', () => {
          });
          expect(mismatch.success).toBe(false);
          if (!mismatch.success) {
-            const issue = mismatch.error.issues.find((i: z.ZodIssue) => 
-               i.path.includes('STELLAR_NETWORK') && i.message.includes('mainnet')
+            const issue = mismatch.error.issues.find(
+               (i: z.ZodIssue) =>
+                  i.path.includes('STELLAR_NETWORK') &&
+                  i.message.includes('mainnet')
             );
             expect(issue).toBeDefined();
          }
