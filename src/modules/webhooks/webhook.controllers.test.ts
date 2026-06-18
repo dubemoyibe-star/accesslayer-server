@@ -1,5 +1,3 @@
-import supertest from 'supertest';
-import express from 'express';
 import type { Response } from 'express';
 import {
   registerWebhookHandler,

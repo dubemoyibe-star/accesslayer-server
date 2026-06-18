@@ -9,8 +9,6 @@ const keypair = Keypair.random();
 const walletAddress = keypair.publicKey();
 const testUserId = 'webhook-test-user-id';
 const creatorId = 'webhook-test-creator-id';
-const testWebhookId = 'webhook-test-webhook-id';
-
 function signMessage(method: string, path: string, creatorId: string, timestamp: string): string {
   const payload = `${method.toUpperCase()}:${path}:${creatorId}:${timestamp}`;
   const hash = createHash('sha256').update(payload, 'utf8').digest();
