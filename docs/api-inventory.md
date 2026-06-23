@@ -50,6 +50,14 @@ Public activity feed endpoints.
 | :----- | :---------- | :------------------------------- |
 | `GET`  | `/activity` | Return the public activity feed. |
 
+## Wallets Module
+
+Wallet activity and trade history endpoints.
+
+| Method | Path                         | Description                                                   |
+| :----- | :--------------------------- | :------------------------------------------------------------ |
+| `GET`  | `/wallets/:address/activity` | Return paginated trade history (buys and sells) for a wallet. |
+
 ## Ownership Module
 
 Ownership lookup endpoints.
