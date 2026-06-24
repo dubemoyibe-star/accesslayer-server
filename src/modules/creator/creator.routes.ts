@@ -10,6 +10,7 @@ import { cacheControl } from '../../middlewares/cache-control.middleware';
 import { CREATOR_PUBLIC_ROUTE_CACHE_PRESETS } from '../../constants/creator-public-cache.constants';
 import { CREATOR_PUBLIC_ROUTE_NAMES } from '../../constants/creator-public-routes.constants';
 import { requireCreatorProfileOwnership } from '../../middlewares/wallet-ownership.middleware';
+import { validateCreatorParam } from '../../middlewares/creator-param.middleware';
 
 const router = Router();
 
@@ -48,6 +49,7 @@ router.all(CREATORS_ROOT, (_req, res) => {
  */
 router.get(
    '/:creatorId/profile',
+   validateCreatorParam('creatorId'),
    cacheControl(
       CREATOR_PUBLIC_ROUTE_CACHE_PRESETS[CREATOR_PUBLIC_ROUTE_NAMES.GET_PROFILE]
    ),
@@ -62,6 +64,7 @@ router.get(
  */
 router.put(
    '/:creatorId/profile',
+   validateCreatorParam('creatorId'),
    requireCreatorProfileOwnership('creatorId'),
    upsertCreatorProfileHandler
 );

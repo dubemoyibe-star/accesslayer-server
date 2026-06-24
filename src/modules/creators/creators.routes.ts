@@ -6,6 +6,7 @@ import { CREATOR_PUBLIC_ROUTE_CACHE_PRESETS } from '../../constants/creator-publ
 import { CREATOR_PUBLIC_ROUTE_NAMES } from '../../constants/creator-public-routes.constants';
 import { createCreatorReadMetricsMiddleware } from '../../utils/creator-read-metrics.utils';
 import { normalizeTrailingSlash } from '../../middlewares/trailing-slash-normalizer.middleware';
+import { validateCreatorParam } from '../../middlewares/creator-param.middleware';
 
 const creatorsRouter = Router();
 
@@ -39,6 +40,7 @@ creatorsRouter.all('/', (_req, res) => {
  */
 creatorsRouter.get(
    '/:id/stats',
+   validateCreatorParam('id'),
    createCreatorReadMetricsMiddleware('detail'),
    cacheControl(CREATOR_PUBLIC_ROUTE_CACHE_PRESETS[CREATOR_PUBLIC_ROUTE_NAMES.GET_STATS]),
    httpGetCreatorStats
@@ -57,6 +59,7 @@ creatorsRouter.all('/:id/stats', (_req, res) => {
  */
 creatorsRouter.get(
    '/:id/holders',
+   validateCreatorParam('id'),
    createCreatorReadMetricsMiddleware('holders'),
    cacheControl(CREATOR_PUBLIC_ROUTE_CACHE_PRESETS[CREATOR_PUBLIC_ROUTE_NAMES.GET_HOLDERS]),
    httpGetCreatorHolders
