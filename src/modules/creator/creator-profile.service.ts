@@ -91,11 +91,27 @@ export async function getCreatorProfile(
          updatedAt: null,
          perks: [],
          links: [],
+         currentPrice: null,
+         price24hAgo: null,
+         priceChange24h: null,
          metadata: {
             source: 'placeholder',
             isProfileComplete: false,
          },
       };
+   }
+
+   const snapshot = (profile as any).priceSnapshot as {
+      currentPrice: bigint;
+      price24hAgo: bigint;
+      lastTradeAt: Date | null;
+   } | null;
+
+   let priceChange24h: number | null = null;
+   if (snapshot && snapshot.price24hAgo !== BigInt(0)) {
+      const change = Number(snapshot.currentPrice - snapshot.price24hAgo);
+      const base = Number(snapshot.price24hAgo);
+      priceChange24h = parseFloat(((change / base) * 100).toFixed(2));
    }
 
    return {
@@ -107,6 +123,9 @@ export async function getCreatorProfile(
       updatedAt: formatIsoTimestamp(profile.updatedAt),
       perks: (profile.perks as any) || [],
       links: [], // Links are not yet in the Prisma model, keeping as part of contract
+      currentPrice: snapshot ? snapshot.currentPrice.toString() : null,
+      price24hAgo: snapshot ? snapshot.price24hAgo.toString() : null,
+      priceChange24h,
       metadata: {
          source: 'database',
          isProfileComplete: !!profile.displayName && !!profile.bio,
