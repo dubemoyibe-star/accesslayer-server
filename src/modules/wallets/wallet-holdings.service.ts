@@ -25,7 +25,10 @@ export async function fetchWalletHoldings(
     }
 
     const rows = await prisma.keyOwnership.findMany({
-        where: { ownerAddress: address },
+        where: {
+            ownerAddress: address,
+            balance: { gt: 0 },
+        },
         orderBy: { createdAt: 'desc' },
     });
 
