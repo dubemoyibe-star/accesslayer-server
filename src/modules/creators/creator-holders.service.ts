@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../utils/prisma.utils';
+import { logger } from '../../utils/logger.utils';
 import { CreatorHoldersQueryType } from './creator-holders.schemas';
 
 /**
@@ -44,6 +45,7 @@ export async function fetchCreatorHolders(
   query: CreatorHoldersQueryType,
 ): Promise<[HolderRecord[], number]> {
   const { limit, offset, sort } = query;
+  const startMs = Date.now();
 
   const where: Prisma.KeyOwnershipWhereInput = {
     creatorId,
@@ -75,6 +77,11 @@ export async function fetchCreatorHolders(
     key_balance: Number(row.balance),
     held_since: row.createdAt,
   }));
+
+  if (holders.length === 0) {
+    const durationMs = Date.now() - startMs;
+    logger.debug({ creator_id: creatorId, holder_count: 0, query_duration_ms: durationMs }, 'Creator holders query returned zero results');
+  }
 
   return [holders, total];
 }
